@@ -1,45 +1,18 @@
-import react, { useState, useEffect, ReactNode } from "react";
-import { ToastState, toast } from "./state";
-import { Position, ToastT } from "./types";
-
-type ToastProps = {
-  position?: Position;
-  duration?: number;
-  toast: ToastT;
-};
-
-type ToasterProps = {
-  position?: Position;
-  duration?: number;
-};
+import react, { useState, useEffect } from "react";
+import { ToastState } from "./state";
 
 const cn = (...classes: (string | undefined)[]) => {
   classes.filter(Boolean).join(" ");
 };
 
-export const Toaster = ({ position, duration }: ToasterProps) => {
-  const [toasts, setToasts] = useState<ToastT[]>([]);
+const Toaster = () => {
+  const [toasts, setToasts] = useState(false);
 
-  useEffect(() => {
-    ToastState.subscribe((toast) => {
-      setToasts((toasts) => [...toasts, toast]);
-    });
-  }, []);
+  useEffect(() => {}, []);
 
-  return (
-    <ol>
-      {toasts.map((toast, index) => (
-        <Toast
-          key={index}
-          toast={toast}
-          duration={duration}
-          position={position}
-        />
-      ))}
-    </ol>
-  );
+  return <ol></ol>;
 };
 
-const Toast = ({ toast, duration, position }: ToastProps) => {
-  return <li>{toast.element}</li>;
+const Toast = () => {
+  return <li></li>;
 };

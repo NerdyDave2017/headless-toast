@@ -1,19 +1,21 @@
-import { ToastT } from "./types";
+import { ReactElement } from "react";
+
+type Toast = ReactElement | HTMLElement;
 
 class Observer {
-  subscribers: Array<(toast: ToastT) => void>;
-  toasts: Array<ToastT>;
+  subscribers: Array<(toast: Toast) => void>;
+  toasts: Array<Toast>;
 
   constructor() {
     this.subscribers = [];
     this.toasts = [];
   }
 
-  publish(toast: ToastT) {
+  publish(toast: Toast) {
     this.subscribers.forEach((subscriber) => subscriber(toast));
   }
 
-  subscribe(subscriber: (toast: ToastT) => void) {
+  subscribe(subscriber: (toast: Toast) => void) {
     this.subscribers.push(subscriber);
 
     return () => {
@@ -24,7 +26,7 @@ class Observer {
 
   usubscribe() {}
 
-  addToast(toast: ToastT) {
+  addToast(toast: Toast) {
     this.publish(toast);
     this.toasts = [...this.toasts, toast];
   }
@@ -32,7 +34,7 @@ class Observer {
 
 export const ToastState = new Observer();
 
-const toastFunction = (toast: ToastT) => {
+const toastFunction = (toast: Toast) => {
   ToastState.addToast(toast);
 };
 
