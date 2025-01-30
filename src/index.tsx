@@ -1,5 +1,5 @@
 import react, { useState, useEffect } from "react";
-import { ToastState } from "./state";
+import { ToastState, toast } from "./state";
 import { ToasterProps, ToastProps } from "./types";
 import { ToastT } from "./types";
 
@@ -33,3 +33,5 @@ const Toaster = ({ duration, position }: ToasterProps) => {
 const Toast = ({ duration, position, element }: ToastProps) => {
   return <li>{element}</li>;
 };
+
+export { toast, Toaster, type ToastT, type ToasterProps };

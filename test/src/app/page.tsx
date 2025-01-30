@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Toaster, toast } from "headless-toast";
 
 export default function Home() {
   return (
