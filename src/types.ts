@@ -20,6 +20,7 @@ export type Element = ReactElement | ReactHTMLElement<any>;
 export type ToasterProps = {
   position?: Position;
   duration?: number;
+  gap?: number; // space between toasts
 };
 
 export type ToastProps = {

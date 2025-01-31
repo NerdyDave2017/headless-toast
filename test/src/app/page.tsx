@@ -3,16 +3,6 @@ import Image from "next/image";
 import { Toaster, toast } from "headless-toast";
 
 export default function Home() {
-  // setTimeout(() => {
-  //   toast({
-  //     element: (
-  //       <div className="w-[220px] h-[50px] bg-rose-400 text-white">
-  //         This is a div
-  //       </div>
-  //     ),
-  //   });
-  // }, 3000);
-
   const handleToast = () => {
     toast({
       element: (
