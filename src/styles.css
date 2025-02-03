@@ -1,5 +1,4 @@
 :where([data-headless-toaster]) {
-  width: auto;
   position: fixed;
   padding: 0;
   margin: 0;
@@ -8,4 +7,57 @@
   outline: none;
   z-index: 999999999;
   transition: transform 400ms ease;
+}
+
+:where([data-headless-toaster][data-x-position="right"]) {
+  right: var(--offset-right);
+}
+
+:where([data-headless-toaster][data-x-position="left"]) {
+  left: var(--offset-left);
+}
+
+:where([data-headless-toaster][data-x-position="center"]) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+:where([data-headless-toaster][data-y-position="top"]) {
+  top: var(--offset-top);
+}
+
+:where([data-headless-toaster][data-y-position="bottom"]) {
+  bottom: var(--offset-bottom);
+}
+
+:where([data-headless-toast]) {
+  --y: translateY(100%);
+  --lift-amount: calc(var(--lift) * var(--gap));
+  z-index: var(--z-index);
+  position: absolute;
+  /* opacity: 0; */
+  transform: var(--y);
+  filter: blur(0);
+  transition: transform 400ms, opacity 400ms, height 400ms, box-shadow 200ms;
+  box-sizing: border-box;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+:where([data-headless-toast][data-y-position="top"]) {
+  top: 0;
+  --y: translateY(-100%);
+  --lift: 1;
+  --lift-amount: calc(1 * var(--gap));
+}
+
+:where([data-headless-toast][data-y-position="bottom"]) {
+  bottom: 0;
+  --y: translateY(100%);
+  --lift: -1;
+  --lift-amount: calc(var(--lift) * var(--gap));
+}
+
+:where([data-sonner-toast]) > * {
+  transition: opacity 400ms;
 }
