@@ -1,4 +1,6 @@
 :where([data-headless-toaster]) {
+  width: var(--width);
+  height: auto;
   position: fixed;
   padding: 0;
   margin: 0;
@@ -31,7 +33,9 @@
 }
 
 :where([data-headless-toast]) {
-  --y: translateY(100%);
+  width: auto;
+  height: auto;
+  /* --y: translateY(100%); */
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
   position: absolute;
@@ -53,9 +57,17 @@
 
 :where([data-headless-toast][data-y-position="bottom"]) {
   bottom: 0;
-  --y: translateY(100%);
+  /* --y: translateY(100%); */
   --lift: -1;
   --lift-amount: calc(var(--lift) * var(--gap));
+}
+
+:where([data-headless-toast][data-x-position="right"]) {
+  right: 0;
+}
+
+:where([data-headless-toast][data-x-position="left"]) {
+  left: 0;
 }
 
 :where([data-sonner-toast]) > * {
