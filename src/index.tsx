@@ -7,8 +7,16 @@ import react, {
   CSSProperties,
   useCallback,
 } from "react";
+import ReactDom from "react-dom";
+
 import { ToastState, toast } from "./state";
-import { HeightT, Position, ToasterProps, ToastProps } from "./types";
+import {
+  HeightT,
+  Position,
+  ToasterProps,
+  ToastProps,
+  ToastToDismiss,
+} from "./types";
 import { ToastT } from "./types";
 import "./styles.css";
 
@@ -68,7 +76,35 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
 
   useEffect(() => {
     ToastState.subscribe((toast) => {
-      setToasts((prevToasts) => [...prevToasts, toast]);
+      if ((toast as ToastToDismiss).dismiss) {
+        setToasts((prevToasts) =>
+          prevToasts.map((t) =>
+            t.id === toast.id ? { ...t, delete: true } : t
+          )
+        );
+        return;
+      }
+
+      setTimeout(() => {
+        ReactDom.flushSync(() => {
+          setToasts((prevToasts) => {
+            const indexOfExistingToast = prevToasts.findIndex(
+              (t) => t.id === toast.id
+            );
+
+            // Update the toast if it already exists
+            if (indexOfExistingToast !== -1) {
+              return [
+                ...prevToasts.slice(0, indexOfExistingToast),
+                { ...prevToasts[indexOfExistingToast], ...toast },
+                ...toasts.slice(indexOfExistingToast + 1),
+              ];
+            }
+
+            return [...prevToasts, toast as ToastT];
+          });
+        });
+      });
     });
   }, []);
 
