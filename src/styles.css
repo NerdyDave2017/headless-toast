@@ -35,11 +35,11 @@
 :where([data-headless-toast]) {
   width: auto;
   height: auto;
-  /* --y: translateY(100%); */
+  --y: translateY(100%);
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
   position: absolute;
-  /* opacity: 0; */
+  opacity: 0;
   transform: var(--y);
   filter: blur(0);
   transition: transform 400ms, opacity 400ms, height 400ms, box-shadow 200ms;
@@ -57,7 +57,7 @@
 
 :where([data-headless-toast][data-y-position="bottom"]) {
   bottom: 0;
-  /* --y: translateY(100%); */
+  --y: translateY(100%);
   --lift: -1;
   --lift-amount: calc(var(--lift) * var(--gap));
 }
@@ -70,6 +70,33 @@
   left: 0;
 }
 
-:where([data-sonner-toast]) > * {
+:where([data-headless-toast][data-x-position="center"]) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+:where([data-headless-toast]) > * {
   transition: opacity 400ms;
+}
+
+:where(
+    [data-headless-toast][data-expanded="false"][data-front="false"][data-styled="true"]
+  )
+  > * {
+  opacity: 0;
+}
+
+:where([data-headless-toast][data-mounted="true"]) {
+  --y: translateY(0);
+  opacity: 1;
+}
+
+:where([data-headless-toast][data-mounted="true"][data-expanded="true"]) {
+  --y: translateY(calc(var(--lift) * var(--offset)));
+  height: var(--initial-height);
+}
+
+:where([data-headless-toast][data-visible="false"]) {
+  opacity: 0;
+  pointer-events: none;
 }

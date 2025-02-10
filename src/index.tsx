@@ -1,4 +1,4 @@
-import react, {
+import {
   useState,
   useEffect,
   forwardRef,
@@ -46,7 +46,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
   const {
     width = TOAST_WIDTH,
     visibleToasts = VISIBLE_TOASTS_AMOUNT,
-    position = "bottom-right",
+    position = "top-center",
     duration,
     gap = GAP,
     mobileOffset,
@@ -244,6 +244,14 @@ const Toast = (props: ToastProps) => {
   const dismissible = toast.dismissible !== false;
 
   const [y, x] = position!.split("-");
+
+  useEffect(() => {
+    // Trigger enter animation without using CSS animation
+    console.log("We got here");
+    setMounted(true);
+  }, []);
+
+  console.log(mounted, "Mounted");
   return (
     <li
       data-headless-toast
