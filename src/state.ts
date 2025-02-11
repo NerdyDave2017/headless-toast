@@ -1,6 +1,6 @@
 import { ToastT, ToastToDismiss } from "./types";
 
-let toastCounter = 0;
+let toastCounter = 1;
 
 class Observer {
   subscribers: Array<(toast: ToastT | ToastToDismiss) => void>;

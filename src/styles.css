@@ -33,8 +33,6 @@
 }
 
 :where([data-headless-toast]) {
-  /* width: auto;
-  height: auto; */
   --y: translateY(100%);
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
@@ -42,6 +40,7 @@
   opacity: 0;
   transform: var(--y);
   filter: blur(0);
+  touch-action: none;
   transition: transform 400ms, opacity 400ms, height 400ms, box-shadow 200ms;
   box-sizing: border-box;
   outline: none;
@@ -71,6 +70,10 @@
   )
   > * {
   opacity: 0;
+}
+
+:where([data-headless-toast]) :where([data-button]):focus-visible {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
 }
 
 :where([data-headless-toast][data-mounted="true"]) {
@@ -127,4 +130,50 @@
 /* Bump up the height to make sure hover state doesn't get set to false */
 :where([data-headless-toast][data-removed="true"][data-front="false"])::before {
   height: calc(var(--initial-height) + 20%);
+}
+
+/* Leave a ghost div to avoid setting hover to false when swiping out */
+:where([data-headless-toast][data-swiping="true"])::before {
+  content: "";
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  height: 100%;
+  z-index: -1;
+}
+
+:where(
+    [data-headless-toast][data-y-position="top"][data-swiping="true"]
+  )::before {
+  /* y 50% needed to distribute height additional height evenly */
+  bottom: 50%;
+  transform: scaleY(3) translateY(50%);
+}
+
+:where(
+    [data-headless-toast][data-y-position="bottom"][data-swiping="true"]
+  )::before {
+  /* y -50% needed to distribute height additional height evenly */
+  top: 50%;
+  transform: scaleY(3) translateY(-50%);
+}
+
+/* Leave a ghost div to avoid setting hover to false when transitioning out */
+:where(
+    [data-headless-toast][data-swiping="false"][data-removed="true"]
+  )::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: scaleY(2);
+}
+
+/* Needed to avoid setting hover to false when inbetween toasts */
+:where([data-headless-toast])::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  height: calc(var(--gap) + 1px);
+  bottom: 100%;
+  width: 100%;
 }

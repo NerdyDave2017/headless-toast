@@ -4,10 +4,12 @@ import { Toaster, toast } from "headless-toast";
 
 export default function Home() {
   const handleToast = () => {
+    const randomNumber = Math.round(Math.random() * 10);
+
     toast({
       element: (
         <div className="w-[220px] h-[50px] bg-rose-400 text-white p-3 box-border">
-          This is a div
+          This is a div {randomNumber}
         </div>
       ),
     });
