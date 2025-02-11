@@ -33,8 +33,8 @@
 }
 
 :where([data-headless-toast]) {
-  width: auto;
-  height: auto;
+  /* width: auto;
+  height: auto; */
   --y: translateY(100%);
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
@@ -62,19 +62,6 @@
   --lift-amount: calc(var(--lift) * var(--gap));
 }
 
-:where([data-headless-toast][data-x-position="right"]) {
-  right: 0;
-}
-
-:where([data-headless-toast][data-x-position="left"]) {
-  left: 0;
-}
-
-:where([data-headless-toast][data-x-position="center"]) {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 :where([data-headless-toast]) > * {
   transition: opacity 400ms;
 }
@@ -99,4 +86,45 @@
 :where([data-headless-toast][data-visible="false"]) {
   opacity: 0;
   pointer-events: none;
+}
+
+:where([data-headless-toast][data-expanded="false"][data-front="false"]) {
+  --scale: var(--toasts-before) * 0.05 + 1;
+  --y: translateY(calc(var(--lift-amount) * var(--toasts-before)))
+    scale(calc(-1 * var(--scale)));
+  height: var(--front-toast-height);
+}
+
+:where(
+    [data-headless-toast][data-expanded="false"][data-front="false"][data-styled="true"]
+  )
+  > * {
+  opacity: 0;
+}
+
+:where(
+    [data-headless-toast][data-removed="true"][data-front="true"][data-swipe-out="false"]
+  ) {
+  --y: translateY(calc(var(--lift) * -100%));
+  opacity: 0;
+}
+
+:where(
+    [data-headless-toast][data-removed="true"][data-front="false"][data-swipe-out="false"][data-expanded="true"]
+  ) {
+  --y: translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));
+  opacity: 0;
+}
+
+:where(
+    [data-headless-toast][data-removed="true"][data-front="false"][data-swipe-out="false"][data-expanded="false"]
+  ) {
+  --y: translateY(40%);
+  opacity: 0;
+  transition: transform 500ms, opacity 200ms;
+}
+
+/* Bump up the height to make sure hover state doesn't get set to false */
+:where([data-headless-toast][data-removed="true"][data-front="false"])::before {
+  height: calc(var(--initial-height) + 20%);
 }

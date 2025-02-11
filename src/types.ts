@@ -8,6 +8,9 @@ export interface ToastT {
   duration?: number;
   delete?: boolean;
   dismissible?: boolean;
+  invert?: boolean;
+  onDismiss?: (toast: ToastT) => void;
+  onAutoClose?: (toast: ToastT) => void;
 }
 export interface ToastToDismiss {
   id: number | string;
@@ -42,7 +45,7 @@ type Offset =
 
 export type Element = ReactElement | ReactHTMLElement<any>;
 
-export type ToasterProps = {
+export interface ToasterProps {
   width?: number; // Should be at least the same as the max width of the user defined toast width
   position?: Position;
   duration?: number;
@@ -52,9 +55,10 @@ export type ToasterProps = {
   visibleToasts?: number;
   expand?: boolean;
   swipeDirections?: SwipeDirection[];
-};
+  pauseWhenPageIsHidden?: Boolean;
+}
 
-export type ToastProps = {
+export interface ToastProps {
   index: number;
   toast: ToastT;
   toasts: ToastT[];
@@ -69,4 +73,6 @@ export type ToastProps = {
   gap?: number;
   expanded: boolean;
   swipeDirections?: SwipeDirection[];
-};
+  interacting: Boolean;
+  pauseWhenPageIsHidden: Boolean;
+}

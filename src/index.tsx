@@ -6,6 +6,7 @@ import {
   useRef,
   CSSProperties,
   useCallback,
+  useLayoutEffect,
 } from "react";
 import ReactDom from "react-dom";
 
@@ -19,6 +20,7 @@ import {
 } from "./types";
 import { ToastT } from "./types";
 import "./styles.css";
+import { useIsDocumentHidden } from "./hooks";
 
 // Visible toasts amount
 const VISIBLE_TOASTS_AMOUNT = 3;
@@ -38,6 +40,12 @@ const TOAST_WIDTH = 356;
 // Default lifetime of a toasts (in ms)
 const TOAST_LIFETIME = 4000;
 
+// Threshold to dismiss a toast
+const SWIPE_THRESHOLD = 20;
+
+// Equal to exit animation duration
+const TIME_BEFORE_UNMOUNT = 200;
+
 const cn = (...classes: (string | undefined)[]) => {
   classes.filter(Boolean).join(" ");
 };
@@ -53,6 +61,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
     offset,
     expand,
     swipeDirections,
+    pauseWhenPageIsHidden,
   } = props;
 
   const [toasts, setToasts] = useState<ToastT[]>([]);
@@ -107,6 +116,13 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
       });
     });
   }, []);
+
+  useEffect(() => {
+    // Ensure expanded is always false when no toasts are present / only one left
+    if (toasts.length <= 1) {
+      setExpanded(false);
+    }
+  }, [toasts]);
 
   function assignOffset(
     defaultOffset: ToasterProps["offset"],
@@ -171,6 +187,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
             data-headless-toaster
             data-y-position={y}
             data-x-position={x}
+            data-lifted={expanded && toasts.length > 1 && !expand}
             style={
               {
                 "--width": `${width}px`,
@@ -178,6 +195,23 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
                 "--gap": `${gap}px`,
               } as CSSProperties
             }
+            onMouseEnter={() => setExpanded(true)}
+            onMouseMove={() => setExpanded(true)}
+            onMouseLeave={() => {
+              // Avoid setting expanded to false when interacting with a toast, e.g. swiping
+              if (!interacting) {
+                setExpanded(false);
+              }
+            }}
+            onPointerDown={(event) => {
+              const isNotDismissible =
+                event.target instanceof HTMLElement &&
+                event.target.dataset.dismissible === "false";
+
+              if (isNotDismissible) return;
+              setInteracting(true);
+            }}
+            onPointerUp={() => setInteracting(false)}
           >
             {toasts.map((toast, index) => (
               <Toast
@@ -196,6 +230,8 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
                 gap={gap}
                 expanded={expanded}
                 swipeDirections={swipeDirections}
+                interacting={interacting}
+                pauseWhenPageIsHidden={!!pauseWhenPageIsHidden}
               />
             ))}
           </ol>
@@ -220,6 +256,8 @@ const Toast = (props: ToastProps) => {
     setHeights,
     expandByDefault,
     gap,
+    interacting,
+    pauseWhenPageIsHidden,
     swipeDirections,
   } = props;
 
@@ -243,17 +281,163 @@ const Toast = (props: ToastProps) => {
   const isVisible = index + 1 <= visibleToasts;
   const dismissible = toast.dismissible !== false;
 
+  // Height index is used to calculate the offset as it gets updated before the toast array, which means we can calculate the new layout faster.
+  const heightIndex = useMemo(
+    () => heights.findIndex((height) => height.toastId === toast.id) || 0,
+    [heights, toast.id]
+  );
+
+  const duration = useMemo(
+    () => toast.duration || durationFromToaster || TOAST_LIFETIME,
+    [toast.duration, durationFromToaster]
+  );
+
+  const closeTimerStartTimeRef = useRef(0);
+  const offset = useRef(0);
+  const lastCloseTimerStartTimeRef = useRef(0);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const [y, x] = position!.split("-");
+  const toastsHeightBefore = useMemo(() => {
+    return heights.reduce((prev, curr, reducerIndex) => {
+      // Calculate offset up until current toast
+      if (reducerIndex >= heightIndex) {
+        return prev;
+      }
+
+      return prev + curr.height;
+    }, 0);
+  }, [heights, heightIndex]);
+
+  const isDocumentHidden = useIsDocumentHidden();
+
+  offset.current = useMemo(
+    () => heightIndex * gap! + toastsHeightBefore,
+    [heightIndex, toastsHeightBefore]
+  );
+
+  const deleteToast = useCallback(() => {
+    // Save the offset for the exit swipe animation
+    setRemoved(true);
+    setOffsetBeforeRemove(offset.current);
+    setHeights((h) => h.filter((height) => height.toastId !== toast.id));
+
+    setTimeout(() => {
+      removeToast(toast);
+    }, TIME_BEFORE_UNMOUNT);
+  }, [toast, removeToast, setHeights, offset]);
 
   useEffect(() => {
     // Trigger enter animation without using CSS animation
-    console.log("We got here");
     setMounted(true);
   }, []);
 
-  console.log(mounted, "Mounted");
+  useEffect(() => {
+    const toastNode = toastRef.current;
+    if (toastNode) {
+      const height = toastNode.getBoundingClientRect().height;
+      // Add toast height to heights array after the toast is mounted
+      setInitialHeight(height);
+      setHeights((h) => [
+        { toastId: toast.id, height, position: toast.position! },
+        ...h,
+      ]);
+      return () =>
+        setHeights((h) => h.filter((height) => height.toastId !== toast.id));
+    }
+  }, [setHeights, toast.id]);
+
+  useLayoutEffect(() => {
+    if (!mounted) return;
+
+    const toastNode = toastRef.current;
+    if (toastNode) {
+      const originalHeight = toastNode.style.height;
+      toastNode.style.height = "auto";
+      const newHeight = toastNode.getBoundingClientRect().height;
+      toastNode.style.height = originalHeight;
+
+      setInitialHeight(newHeight);
+
+      setHeights((heights) => {
+        const alreadyExists = heights.find(
+          (height) => height.toastId === toast.id
+        );
+        if (!alreadyExists) {
+          return [
+            { toastId: toast.id, height: newHeight, position: toast.position! },
+            ...heights,
+          ];
+        } else {
+          return heights.map((height) =>
+            height.toastId === toast.id
+              ? { ...height, height: newHeight }
+              : height
+          );
+        }
+      });
+    }
+  }, [mounted, setHeights, toast.id]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    // Pause the timer on each hover
+    const pauseTimer = () => {
+      if (lastCloseTimerStartTimeRef.current < closeTimerStartTimeRef.current) {
+        // Get the elapsed time since the timer started
+        const elapsedTime =
+          new Date().getTime() - closeTimerStartTimeRef.current;
+
+        remainingTime.current = remainingTime.current - elapsedTime;
+      }
+
+      lastCloseTimerStartTimeRef.current = new Date().getTime();
+    };
+
+    const startTimer = () => {
+      // setTimeout(, Infinity) behaves as if the delay is 0.
+      // As a result, the toast would be closed immediately, giving the appearance that it was never rendered.
+      // See: https://github.com/denysdovhan/wtfjs?tab=readme-ov-file#an-infinite-timeout
+      if (remainingTime.current === Infinity) return;
+
+      closeTimerStartTimeRef.current = new Date().getTime();
+
+      // Let the toast know it has started
+      timeoutId = setTimeout(() => {
+        toast.onAutoClose?.(toast);
+        deleteToast();
+      }, remainingTime.current);
+    };
+
+    // if (
+    //   expanded ||
+    //   interacting ||
+    //   (pauseWhenPageIsHidden && isDocumentHidden)
+    // ) {
+    //   pauseTimer();
+    // } else {
+    //   startTimer();
+    // }
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    expanded,
+    interacting,
+    toast,
+    pauseWhenPageIsHidden,
+    isDocumentHidden,
+    deleteToast,
+  ]);
+
+  useEffect(() => {
+    if (toast.delete) {
+      deleteToast();
+    }
+  }, [deleteToast, toast.delete]);
+
   return (
     <li
+      ref={toastRef}
       data-headless-toast
       data-y-position={y}
       data-x-position={x}
@@ -268,15 +452,15 @@ const Toast = (props: ToastProps) => {
       data-swipe-out={swipeOut}
       data-swipe-direction={swipeOutDirection}
       data-expanded={Boolean(expanded || (expandByDefault && mounted))}
-      // style={
-      //   {
-      //     "--index": index,
-      //     "--toasts-before": index,
-      //     "--z-index": toasts.length - index,
-      //     "--offset": `${removed ? offsetBeforeRemove : offset.current}px`,
-      //     "--initial-height": expandByDefault ? "auto" : `${initialHeight}px`,
-      //   } as CSSProperties
-      // }
+      style={
+        {
+          "--index": index,
+          "--toasts-before": index,
+          "--z-index": toasts.length - index,
+          "--offset": `${removed ? offsetBeforeRemove : offset.current}px`,
+          "--initial-height": expandByDefault ? "auto" : `${initialHeight}px`,
+        } as CSSProperties
+      }
     >
       {element}
     </li>
