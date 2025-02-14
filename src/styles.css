@@ -81,11 +81,6 @@
   opacity: 1;
 }
 
-:where([data-headless-toast][data-mounted="true"][data-expanded="true"]) {
-  --y: translateY(calc(var(--lift) * var(--offset)));
-  height: var(--initial-height);
-}
-
 :where([data-headless-toast][data-visible="false"]) {
   opacity: 0;
   pointer-events: none;
@@ -96,6 +91,11 @@
   --y: translateY(calc(var(--lift-amount) * var(--toasts-before)))
     scale(calc(-1 * var(--scale)));
   height: var(--front-toast-height);
+}
+
+:where([data-headless-toast][data-mounted="true"][data-expanded="true"]) {
+  --y: translateY(calc(var(--lift) * var(--offset)));
+  height: var(--initial-height);
 }
 
 :where(

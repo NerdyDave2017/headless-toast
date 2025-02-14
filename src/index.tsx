@@ -54,7 +54,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
   const {
     width = TOAST_WIDTH,
     visibleToasts = VISIBLE_TOASTS_AMOUNT,
-    position = "bottom-right",
+    position = "top-right",
     duration,
     gap = GAP,
     mobileOffset,
@@ -106,7 +106,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
               return [
                 ...prevToasts.slice(0, indexOfExistingToast),
                 { ...prevToasts[indexOfExistingToast], ...toast },
-                ...toasts.slice(indexOfExistingToast + 1),
+                ...prevToasts.slice(indexOfExistingToast + 1),
               ];
             }
 
@@ -221,32 +221,27 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
                   (!toast.position && index === 0) ||
                   toast.position === position
               )
-              .map((toast, index) => {
-                console.log(toast, index);
-                return (
-                  <Toast
-                    key={index}
-                    index={index}
-                    element={toast.element}
-                    duration={toast.duration ?? duration}
-                    position={toast.position ?? position}
-                    toast={toast}
-                    toasts={toasts}
-                    visibleToasts={visibleToasts}
-                    removeToast={removeToast}
-                    heights={heights.filter(
-                      (h) => h.position == toast.position
-                    )}
-                    setHeights={setHeights}
-                    expandByDefault={expand}
-                    gap={gap}
-                    expanded={expanded}
-                    swipeDirections={swipeDirections}
-                    interacting={interacting}
-                    pauseWhenPageIsHidden={!!pauseWhenPageIsHidden}
-                  />
-                );
-              })}
+              .map((toast, index) => (
+                <Toast
+                  key={toast.id}
+                  index={index}
+                  element={toast.element}
+                  duration={toast.duration ?? duration}
+                  position={toast.position ?? position}
+                  toast={toast}
+                  toasts={toasts}
+                  visibleToasts={visibleToasts}
+                  removeToast={removeToast}
+                  heights={heights.filter((h) => h.position == toast.position)}
+                  setHeights={setHeights}
+                  expandByDefault={expand}
+                  gap={gap}
+                  expanded={expanded}
+                  swipeDirections={swipeDirections}
+                  interacting={interacting}
+                  pauseWhenPageIsHidden={!!pauseWhenPageIsHidden}
+                />
+              ))}
           </ol>
         );
       })}
@@ -273,6 +268,12 @@ const Toast = (props: ToastProps) => {
     pauseWhenPageIsHidden,
     swipeDirections,
   } = props;
+
+  useEffect(() => {
+    // console.log("toast", toast);
+    // console.log("toasts", toasts);
+    // console.log(mounted, "mounted");
+  }, []);
 
   const [swipeDirection, setSwipeDirection] = useState<"x" | "y" | null>(null);
   const [swipeOutDirection, setSwipeOutDirection] = useState<
@@ -340,14 +341,20 @@ const Toast = (props: ToastProps) => {
   }, [toast, removeToast, setHeights, offset]);
 
   useEffect(() => {
+    remainingTime.current = duration;
+  }, [duration]);
+
+  useEffect(() => {
     // Trigger enter animation without using CSS animation
     setMounted(true);
   }, []);
 
   useEffect(() => {
     const toastNode = toastRef.current;
+
     if (toastNode) {
       const height = toastNode.getBoundingClientRect().height;
+
       // Add toast height to heights array after the toast is mounted
       setInitialHeight(height);
       setHeights((h) => [
@@ -363,34 +370,34 @@ const Toast = (props: ToastProps) => {
     if (!mounted) return;
 
     const toastNode = toastRef.current;
-    // if (toastNode) {
-    const originalHeight = toastNode.style.height;
-    toastNode.style.height = "auto";
-    const newHeight = toastNode.getBoundingClientRect().height;
-    toastNode.style.height = originalHeight;
+    if (toastNode) {
+      const originalHeight = toastNode.style.height;
+      toastNode.style.height = "auto";
+      const newHeight = toastNode.getBoundingClientRect().height;
+      toastNode.style.height = originalHeight;
 
-    setInitialHeight(newHeight);
+      setInitialHeight(newHeight);
 
-    setHeights((heights) => {
-      const alreadyExists = heights.find(
-        (height) => height.toastId === toast.id
-      );
-
-      if (!alreadyExists) {
-        return [
-          { toastId: toast.id, height: newHeight, position: toast.position! },
-          ...heights,
-        ];
-      } else {
-        return heights.map((height) =>
-          height.toastId === toast.id
-            ? { ...height, height: newHeight }
-            : height
+      setHeights((heights) => {
+        const alreadyExists = heights.find(
+          (height) => height.toastId === toast.id
         );
-      }
-    });
-    // }
-  }, [mounted, setHeights, toast.id]);
+
+        if (!alreadyExists) {
+          return [
+            { toastId: toast.id, height: newHeight, position: toast.position! },
+            ...heights,
+          ];
+        } else {
+          return heights.map((height) =>
+            height.toastId === toast.id
+              ? { ...height, height: newHeight }
+              : height
+          );
+        }
+      });
+    }
+  }, [mounted, setHeights, toast.id, toasts]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
