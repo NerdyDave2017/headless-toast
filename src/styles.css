@@ -1,5 +1,15 @@
+:where([data-headless-toaster][data-lifted="true"]) {
+  transform: translateY(-10px);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :where([data-headless-toaster][data-lifted="true"]) {
+    transform: none;
+  }
+}
+
 :where([data-headless-toaster]) {
-  width: var(--width);
+  /* width: var(--width); */
   height: auto;
   position: fixed;
   padding: 0;
@@ -37,11 +47,15 @@
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   opacity: 0;
   transform: var(--y);
   filter: blur(0);
   touch-action: none;
-  transition: transform 400ms, opacity 400ms, height 400ms, box-shadow 200ms;
+  transition: transform 400ms, opacity 400ms, height 400ms, max-height 400ms,
+    box-shadow 200ms;
   box-sizing: border-box;
   outline: none;
   overflow-wrap: anywhere;
@@ -59,6 +73,19 @@
   --y: translateY(100%);
   --lift: -1;
   --lift-amount: calc(var(--lift) * var(--gap));
+}
+
+:where([data-headless-toast][data-x-position="left"]) {
+  left: 0;
+}
+
+:where([data-headless-toast][data-x-position="right"]) {
+  right: 0;
+}
+
+:where([data-headless-toast][data-x-position="center"]) {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 :where([data-headless-toast]) > * {
@@ -91,11 +118,18 @@
   --y: translateY(calc(var(--lift-amount) * var(--toasts-before)))
     scale(calc(-1 * var(--scale)));
   height: var(--front-toast-height);
+  max-height: var(
+    --front-toast-height
+  ); /* Max height is used for when toast underneath has a larger height than the toast on top. To ensure consistent sizing with the toast on top */
+  overflow: hidden;
 }
 
 :where([data-headless-toast][data-mounted="true"][data-expanded="true"]) {
   --y: translateY(calc(var(--lift) * var(--offset)));
   height: var(--initial-height);
+  max-height: var(
+    --initial-height
+  ); /* Max height is used for when toast underneath has a larger height than the toast on top. To ensure consistent sizing with the toast on top */
 }
 
 :where(
