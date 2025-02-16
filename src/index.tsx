@@ -144,7 +144,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
     defaultOffset: ToasterProps["offset"],
     mobileOffset: ToasterProps["mobileOffset"]
   ) {
-    const styles = {} as CSSProperties;
+    const styles = {} as Record<string, string>;
 
     [defaultOffset, mobileOffset].forEach((offset, index) => {
       const isMobile = index === 1;
@@ -161,7 +161,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
       if (typeof offset === "number" || typeof offset === "string") {
         assignAll(offset);
       } else if (typeof offset === "object") {
-        ["top", "right", "bottom", "left"].forEach((key) => {
+        (["top", "right", "bottom", "left"] as const).forEach((key) => {
           if (offset[key] === undefined) {
             styles[`${prefix}-${key}`] = defaultValue;
           } else {
