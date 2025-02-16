@@ -8,7 +8,7 @@ export default function Home() {
 
     toast({
       element: (
-        <div className="w-[320px] h-[50px] bg-rose-400 text-white p-3 box-border">
+        <div className="w-[520px] h-[50px] bg-rose-400 text-white p-3 box-border">
           This is a div {randomNumber}
         </div>
       ),

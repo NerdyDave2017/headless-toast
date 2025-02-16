@@ -14,6 +14,7 @@ import { ToastState, toast } from "./state";
 import {
   HeightT,
   Position,
+  SwipeDirection,
   ToasterProps,
   ToastProps,
   ToastToDismiss,
@@ -49,6 +50,21 @@ const TIME_BEFORE_UNMOUNT = 200;
 const cn = (...classes: (string | undefined)[]) => {
   classes.filter(Boolean).join(" ");
 };
+
+function getDefaultSwipeDirections(position: string): Array<SwipeDirection> {
+  const [y, x] = position.split("-");
+  const directions: Array<SwipeDirection> = [];
+
+  if (y) {
+    directions.push(y as SwipeDirection);
+  }
+
+  if (x) {
+    directions.push(x as SwipeDirection);
+  }
+
+  return directions;
+}
 
 const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
   const {
@@ -430,15 +446,15 @@ const Toast = (props: ToastProps) => {
       }, remainingTime.current);
     };
 
-    // if (
-    //   expanded ||
-    //   interacting ||
-    //   (pauseWhenPageIsHidden && isDocumentHidden)
-    // ) {
-    //   pauseTimer();
-    // } else {
-    //   startTimer();
-    // }
+    if (
+      expanded ||
+      interacting ||
+      (pauseWhenPageIsHidden && isDocumentHidden)
+    ) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
 
     return () => clearTimeout(timeoutId);
   }, [
@@ -482,6 +498,118 @@ const Toast = (props: ToastProps) => {
           "--initial-height": expandByDefault ? "auto" : `${initialHeight}px`,
         } as CSSProperties
       }
+      //TODO: Make out time to come read through the pointer events code and understand it
+      onPointerDown={(event) => {
+        if (!dismissible) return;
+        dragStartTime.current = new Date();
+        setOffsetBeforeRemove(offset.current);
+        // Ensure we maintain correct pointer capture even when going outside of the toast (e.g. when swiping)
+        (event.target as HTMLElement).setPointerCapture(event.pointerId);
+        if ((event.target as HTMLElement).tagName === "BUTTON") return;
+        setSwiping(true);
+        pointerStartRef.current = { x: event.clientX, y: event.clientY };
+      }}
+      onPointerUp={() => {
+        if (swipeOut || !dismissible) return;
+
+        pointerStartRef.current = null;
+        const swipeAmountX = Number(
+          toastRef.current?.style
+            .getPropertyValue("--swipe-amount-x")
+            .replace("px", "") || 0
+        );
+        const swipeAmountY = Number(
+          toastRef.current?.style
+            .getPropertyValue("--swipe-amount-y")
+            .replace("px", "") || 0
+        );
+        const timeTaken =
+          new Date().getTime() - (dragStartTime.current?.getTime() || 0);
+
+        const swipeAmount =
+          swipeDirection === "x" ? swipeAmountX : swipeAmountY;
+        const velocity = Math.abs(swipeAmount) / timeTaken;
+
+        if (Math.abs(swipeAmount) >= SWIPE_THRESHOLD || velocity > 0.11) {
+          setOffsetBeforeRemove(offset.current);
+          toast.onDismiss?.(toast);
+
+          if (swipeDirection === "x") {
+            setSwipeOutDirection(swipeAmountX > 0 ? "right" : "left");
+          } else {
+            setSwipeOutDirection(swipeAmountY > 0 ? "down" : "up");
+          }
+
+          deleteToast();
+          setSwipeOut(true);
+          setIsSwiped(false);
+          return;
+        }
+
+        setSwiping(false);
+        setSwipeDirection(null);
+      }}
+      onPointerMove={(event) => {
+        if (!pointerStartRef.current || !dismissible) return;
+
+        const isHighlighted = window.getSelection()?.toString().length! > 0;
+        if (isHighlighted) return;
+
+        const yDelta = event.clientY - pointerStartRef.current.y;
+        const xDelta = event.clientX - pointerStartRef.current.x;
+
+        const swipeDirections =
+          props.swipeDirections ??
+          getDefaultSwipeDirections(position as string);
+
+        // Determine swipe direction if not already locked
+        if (!swipeDirection && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
+          setSwipeDirection(Math.abs(xDelta) > Math.abs(yDelta) ? "x" : "y");
+        }
+
+        let swipeAmount = { x: 0, y: 0 };
+
+        // Only apply swipe in the locked direction
+        if (swipeDirection === "y") {
+          // Handle vertical swipes
+          if (
+            swipeDirections.includes("top") ||
+            swipeDirections.includes("bottom")
+          ) {
+            if (swipeDirections.includes("top") && yDelta < 0) {
+              swipeAmount.y = yDelta;
+            } else if (swipeDirections.includes("bottom") && yDelta > 0) {
+              swipeAmount.y = yDelta;
+            }
+          }
+        } else if (swipeDirection === "x") {
+          // Handle horizontal swipes
+          if (
+            swipeDirections.includes("left") ||
+            swipeDirections.includes("right")
+          ) {
+            if (swipeDirections.includes("left") && xDelta < 0) {
+              swipeAmount.x = xDelta;
+            } else if (swipeDirections.includes("right") && xDelta > 0) {
+              swipeAmount.x = xDelta;
+            }
+          }
+        }
+
+        if (Math.abs(swipeAmount.x) > 0 || Math.abs(swipeAmount.y) > 0) {
+          setIsSwiped(true);
+        }
+
+        // Apply transform using both x and y values
+        toastRef.current?.style.setProperty(
+          "--swipe-amount-x",
+          `${swipeAmount.x}px`
+        );
+        toastRef.current?.style.setProperty(
+          "--swipe-amount-y",
+          `${swipeAmount.y}px`
+        );
+      }}
     >
       {element}
     </li>

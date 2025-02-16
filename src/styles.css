@@ -9,7 +9,6 @@
 }
 
 :where([data-headless-toaster]) {
-  /* width: var(--width); */
   height: auto;
   position: fixed;
   padding: 0;
@@ -47,9 +46,9 @@
   --lift-amount: calc(var(--lift) * var(--gap));
   z-index: var(--z-index);
   position: absolute;
-  display: flex;
+  display: flex; /* To allow control of children elements position */
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-end; /* Aligns children to the bottom especially children with smaller length that  toast before */
   opacity: 0;
   transform: var(--y);
   filter: blur(0);
@@ -210,4 +209,122 @@
   height: calc(var(--gap) + 1px);
   bottom: 100%;
   width: 100%;
+}
+
+[data-headless-toast][data-swiping="true"] {
+  transform: var(--y) translateY(var(--swipe-amount-y, 0px))
+    translateX(var(--swipe-amount-x, 0px));
+  transition: none;
+}
+
+[data-headless-toast][data-swiped="true"] {
+  user-select: none;
+}
+
+[data-headless-toast][data-swipe-out="true"][data-y-position="bottom"],
+[data-headless-toast][data-swipe-out="true"][data-y-position="top"] {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+[data-headless-toast][data-swipe-out="true"][data-swipe-direction="left"] {
+  animation-name: swipe-out-left;
+}
+
+[data-headless-toast][data-swipe-out="true"][data-swipe-direction="right"] {
+  animation-name: swipe-out-right;
+}
+
+[data-headless-toast][data-swipe-out="true"][data-swipe-direction="up"] {
+  animation-name: swipe-out-up;
+}
+
+[data-headless-toast][data-swipe-out="true"][data-swipe-direction="down"] {
+  animation-name: swipe-out-down;
+}
+
+@keyframes swipe-out-left {
+  from {
+    transform: var(--y) translateX(var(--swipe-amount-x));
+    opacity: 1;
+  }
+
+  to {
+    transform: var(--y) translateX(calc(var(--swipe-amount-x) - 100%));
+    opacity: 0;
+  }
+}
+
+@keyframes swipe-out-right {
+  from {
+    transform: var(--y) translateX(var(--swipe-amount-x));
+    opacity: 1;
+  }
+
+  to {
+    transform: var(--y) translateX(calc(var(--swipe-amount-x) + 100%));
+    opacity: 0;
+  }
+}
+
+@keyframes swipe-out-up {
+  from {
+    transform: var(--y) translateY(var(--swipe-amount-y));
+    opacity: 1;
+  }
+
+  to {
+    transform: var(--y) translateY(calc(var(--swipe-amount-y) - 100%));
+    opacity: 0;
+  }
+}
+
+@keyframes swipe-out-down {
+  from {
+    transform: var(--y) translateY(var(--swipe-amount-y));
+    opacity: 1;
+  }
+
+  to {
+    transform: var(--y) translateY(calc(var(--swipe-amount-y) + 100%));
+    opacity: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  [data-headless-toaster] {
+    position: fixed;
+    right: var(--mobile-offset-right);
+    left: var(--mobile-offset-left);
+    width: 100%;
+  }
+
+  [data-headless-toaster][dir="rtl"] {
+    left: calc(var(--mobile-offset-left) * -1);
+  }
+
+  [data-headless-toaster] [data-headless-toast] {
+    left: 0;
+    right: 0;
+    width: calc(100% - var(--mobile-offset-left) * 2);
+  }
+
+  [data-headless-toaster][data-x-position="left"] {
+    left: var(--mobile-offset-left);
+  }
+
+  [data-headless-toaster][data-y-position="bottom"] {
+    bottom: var(--mobile-offset-bottom);
+  }
+
+  [data-headless-toaster][data-y-position="top"] {
+    top: var(--mobile-offset-top);
+  }
+
+  [data-headless-toaster][data-x-position="center"] {
+    left: var(--mobile-offset-left);
+    right: var(--mobile-offset-right);
+    transform: none;
+  }
 }
