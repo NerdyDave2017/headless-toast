@@ -233,14 +233,14 @@ class ToastSystem {
       </div>
     );
 
-    const id = toast({ element: loadingElement });
+    const id = toast({ element: loadingElement, loading: true });
 
     promise
       .then(() => {
-        toast({ element: successElement }, { id });
+        toast({ element: successElement, loading: false }, { id });
       })
       .catch(() => {
-        toast({ element: errorElement }, { id });
+        toast({ element: errorElement, loading: false }, { id });
       });
   };
 }

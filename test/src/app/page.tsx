@@ -43,7 +43,7 @@ export default function Home() {
 
   const handleToast6 = () => {
     toastSystem.promise(
-      new Promise((resolve, reject) => setTimeout(resolve, 2000)),
+      new Promise((resolve, reject) => setTimeout(resolve, 10000)),
       {
         loading: "Loading...",
         success: "Success!",

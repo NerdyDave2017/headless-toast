@@ -5,6 +5,7 @@ export interface ToastT {
   width?: number; // Should be at least the same as the width of the user defined toast width
   element: Element;
   position?: Position;
+  loading?: boolean;
   duration?: number;
   delete?: boolean;
   dismissible?: boolean;
@@ -66,6 +67,7 @@ export interface ToastProps {
   element: Element;
   position?: Position;
   duration?: number;
+  loading?: boolean;
   visibleToasts: number;
   removeToast: (toast: ToastT) => void;
   heights: HeightT[];

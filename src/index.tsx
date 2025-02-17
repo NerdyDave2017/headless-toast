@@ -244,6 +244,7 @@ const Toaster = forwardRef<HTMLElement, ToasterProps>((props, ref) => {
                   element={toast.element}
                   duration={toast.duration ?? duration}
                   position={toast.position ?? position}
+                  loading={toast.loading ?? false}
                   toast={toast}
                   toasts={toasts}
                   visibleToasts={visibleToasts}
@@ -271,6 +272,7 @@ const Toast = (props: ToastProps) => {
     position,
     element,
     index,
+    loading,
     toast,
     toasts,
     visibleToasts,
@@ -439,6 +441,8 @@ const Toast = (props: ToastProps) => {
       // See: https://github.com/denysdovhan/wtfjs?tab=readme-ov-file#an-infinite-timeout
       if (remainingTime.current === Infinity) return;
 
+      if (loading) return;
+
       closeTimerStartTimeRef.current = new Date().getTime();
 
       // Let the toast know it has started
@@ -448,15 +452,15 @@ const Toast = (props: ToastProps) => {
       }, remainingTime.current);
     };
 
-    // if (
-    //   expanded ||
-    //   interacting ||
-    //   (pauseWhenPageIsHidden && isDocumentHidden)
-    // ) {
-    //   pauseTimer();
-    // } else {
-    //   startTimer();
-    // }
+    if (
+      expanded ||
+      interacting ||
+      (pauseWhenPageIsHidden && isDocumentHidden)
+    ) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
 
     return () => clearTimeout(timeoutId);
   }, [
