@@ -285,6 +285,8 @@ const Toast = (props: ToastProps) => {
     swipeDirections,
   } = props;
 
+  // TODO: Add support to pause toast if loading
+
   useEffect(() => {
     // console.log("toast", toast);
     // console.log("toasts", toasts);

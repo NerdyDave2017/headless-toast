@@ -20,27 +20,3 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   position: relative;
 }
-
-.elementType {
-  width: 356px;
-  height: 48px;
-  padding: 10px;
-  border-radius: 6px;
-}
-
-.success {
-  background-color: rgb(167 243 208);
-  border-left: 2px rgb(16 185 129) solid;
-}
-
-.success > span {
-  color: rgb(6 78 59);
-}
-
-.error {
-  background-color: rgb(254 205 211);
-  border-left: 2px rgb(244 63 94) solid;
-}
-.error > span {
-  color: rgb(136 19 55);
-}
