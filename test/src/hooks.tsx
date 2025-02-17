@@ -6,21 +6,25 @@ import react, { ReactNode } from "react";
 class ToastSystem {
   success = (message: ReactNode) => {
     const element = (
-      <div className="bg-emerald-200 border-l-emerald-500 border-l-2 w-[356px] h-12 p-4 rounded-md">
+      <div className="elementType success bg-emerald-200 border-l-emerald-500 border-l-2 w-[356px] h-12 p-4 rounded-md">
         <span className="text-emerald-900">{message}</span>
       </div>
     );
 
     toast({
-      element: (
-        <div className="success bg-emerald-200 border-l-emerald-500 border-l-2 w-[356px] h-12 p-4 rounded-md">
-          <span className="text-emerald-900">{message}</span>
-        </div>
-      ),
+      element,
     });
   };
 
-  error = () => {};
+  error = (message: ReactNode) => {
+    const element = (
+      <div className="elementType error bg-rose-200 border-rose-500">
+        <span className="text-rose-900">{message}</span>
+      </div>
+    );
+
+    toast({ element });
+  };
 
   info = () => {};
 

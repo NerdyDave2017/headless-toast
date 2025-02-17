@@ -31,6 +31,10 @@ export default function Home() {
     toastSystem.success("Log in successful!");
   };
 
+  const handleToast3 = () => {
+    toastSystem.error("Unexpected error!");
+  };
+
   return (
     <section>
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -75,6 +79,13 @@ export default function Home() {
               onClick={handleToast2}
             >
               Success Toast
+            </p>
+            <p
+              className="rounded-full cursor-pointer border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              rel="noopener noreferrer"
+              onClick={handleToast3}
+            >
+              Error Toast
             </p>
             <a
               className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
