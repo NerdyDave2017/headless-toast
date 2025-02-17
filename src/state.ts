@@ -58,6 +58,8 @@ const toastFunction = (toast: Omit<ToastT, "id">) => {
     id,
     ...toast,
   });
+
+  return id;
 };
 
 export const toast = toastFunction;

@@ -6,34 +6,74 @@ import react, { ReactNode } from "react";
 class ToastSystem {
   success = (message: ReactNode) => {
     const element = (
-      <div className="bg-emerald-200 border-l-emerald-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md">
+      <div className="bg-emerald-200 border-l-emerald-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md flex items-center justify-start gap-3">
+        <svg
+          className="h-5 w-5 text-emerald-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
         <span className="text-emerald-900">{message}</span>
       </div>
     );
 
-    toast({
-      element,
-    });
+    return toast({ element });
   };
 
   error = (message: ReactNode) => {
     const element = (
-      <div className="bg-rose-200 border-rose-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md">
+      <div className="bg-rose-200 border-rose-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md flex items-center justify-start gap-3">
+        <svg
+          className="h-5 w-5 text-rose-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
         <span className="text-rose-900">{message}</span>
       </div>
     );
 
-    toast({ element });
+    return toast({ element });
   };
 
   info = (message: ReactNode) => {
     const element = (
-      <div className="bg-sky-200 border-sky-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md">
+      <div className="bg-sky-200 border-sky-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md flex items-center justify-start gap-3">
+        <svg
+          className="h-5 w-5 text-sky-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
         <span className="text-sky-900">This is an info toast</span>
       </div>
     );
 
-    toast({ element });
+    return toast({ element });
   };
 
   loading = (message: ReactNode) => {
@@ -62,7 +102,26 @@ class ToastSystem {
         <span className="text-slate-900">This is a loading toast</span>
       </div>
     );
-    toast({ element });
+
+    return toast({ element });
+  };
+
+  promise = (
+    promise: Promise<unknown>,
+    {
+      loading,
+      success,
+      error,
+    }: { loading: ReactNode; success: ReactNode; error: ReactNode }
+  ) => {
+    const loadingToast = this.loading(loading);
+    promise
+      .then(() => {
+        toastSystem.success(success);
+      })
+      .catch(() => {
+        toastSystem.error(error);
+      });
   };
 }
 
