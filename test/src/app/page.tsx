@@ -35,10 +35,21 @@ export default function Home() {
     toastSystem.error("Unexpected error!");
   };
   const handleToast4 = () => {
-    toastSystem.info("Unexpected error!");
+    toastSystem.info("Some information!");
   };
   const handleToast5 = () => {
-    toastSystem.loading("Unexpected error!");
+    toastSystem.loading("Loading...");
+  };
+
+  const handleToast6 = () => {
+    toastSystem.promise(
+      new Promise((resolve, reject) => setTimeout(resolve, 2000)),
+      {
+        loading: "Loading...",
+        success: "Success!",
+        error: "Error!",
+      }
+    );
   };
 
   return (
@@ -106,6 +117,13 @@ export default function Home() {
               onClick={handleToast5}
             >
               Loading Toast
+            </p>
+            <p
+              className="rounded-full cursor-pointer border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              rel="noopener noreferrer"
+              onClick={handleToast6}
+            >
+              Promise Toast
             </p>
           </div>
         </main>

@@ -51,8 +51,8 @@ class Observer {
 
 export const ToastState = new Observer();
 
-const toastFunction = (toast: Omit<ToastT, "id">) => {
-  const id = toastCounter++;
+const toastFunction = (toast: Omit<ToastT, "id">, data?: { id: number }) => {
+  const id = data?.id || toastCounter++;
 
   ToastState.addToast({
     id,
