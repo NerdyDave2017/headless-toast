@@ -196,7 +196,7 @@ class ToastSystem {
     const successElement = (
       <div className="bg-slate-200 border-slate-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md flex items-center justify-start gap-3">
         <svg
-          className="h-5 w-5 text-slate-500"
+          className="h-5 w-5 text-slate-500 opacity-0 scale-80 origin-center animate-[headless-fade-in_300ms_ease_forwards]"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -216,7 +216,7 @@ class ToastSystem {
     const errorElement = (
       <div className="bg-slate-200 border-slate-500 border-l-2 w-[356px] h-12 p-2.5 rounded-md flex items-center justify-start gap-3">
         <svg
-          className="h-5 w-5 text-slate-500"
+          className="h-5 w-5 text-slate-500 opacity-0 scale-80 origin-center animate-[headless-fade-in_300ms_ease_forwards]"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
