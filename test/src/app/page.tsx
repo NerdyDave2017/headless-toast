@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Toaster, toast } from "headless-toast";
+import { toastSystem } from "@/hooks";
 
 export default function Home() {
   const handleToast = () => {
@@ -24,6 +25,10 @@ export default function Home() {
         </div>
       ),
     });
+  };
+
+  const handleToast2 = () => {
+    toastSystem.success("Log in successful!");
   };
 
   return (
@@ -63,6 +68,13 @@ export default function Home() {
               onClick={handleToast1}
             >
               Test Toast 1
+            </p>
+            <p
+              className="rounded-full cursor-pointer border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+              rel="noopener noreferrer"
+              onClick={handleToast2}
+            >
+              Success Toast
             </p>
             <a
               className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"

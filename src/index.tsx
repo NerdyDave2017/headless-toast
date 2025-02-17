@@ -392,26 +392,26 @@ const Toast = (props: ToastProps) => {
       const newHeight = toastNode.getBoundingClientRect().height;
       toastNode.style.height = originalHeight;
 
-      setInitialHeight(newHeight);
+      // setInitialHeight(newHeight);
 
-      setHeights((heights) => {
-        const alreadyExists = heights.find(
-          (height) => height.toastId === toast.id
-        );
+      // setHeights((heights) => {
+      //   const alreadyExists = heights.find(
+      //     (height) => height.toastId === toast.id
+      //   );
 
-        if (!alreadyExists) {
-          return [
-            { toastId: toast.id, height: newHeight, position: toast.position! },
-            ...heights,
-          ];
-        } else {
-          return heights.map((height) =>
-            height.toastId === toast.id
-              ? { ...height, height: newHeight }
-              : height
-          );
-        }
-      });
+      //   if (!alreadyExists) {
+      //     return [
+      //       { toastId: toast.id, height: newHeight, position: toast.position! },
+      //       ...heights,
+      //     ];
+      //   } else {
+      //     return heights.map((height) =>
+      //       height.toastId === toast.id
+      //         ? { ...height, height: newHeight }
+      //         : height
+      //     );
+      //   }
+      // });
     }
   }, [mounted, setHeights, toast.id, toasts]);
 
@@ -446,15 +446,15 @@ const Toast = (props: ToastProps) => {
       }, remainingTime.current);
     };
 
-    if (
-      expanded ||
-      interacting ||
-      (pauseWhenPageIsHidden && isDocumentHidden)
-    ) {
-      pauseTimer();
-    } else {
-      startTimer();
-    }
+    // if (
+    //   expanded ||
+    //   interacting ||
+    //   (pauseWhenPageIsHidden && isDocumentHidden)
+    // ) {
+    //   pauseTimer();
+    // } else {
+    //   startTimer();
+    // }
 
     return () => clearTimeout(timeoutId);
   }, [

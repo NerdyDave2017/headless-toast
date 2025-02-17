@@ -12,6 +12,7 @@ export interface ToastT {
   onDismiss?: (toast: ToastT) => void;
   onAutoClose?: (toast: ToastT) => void;
 }
+
 export interface ToastToDismiss {
   id: number | string;
   dismiss: boolean;
